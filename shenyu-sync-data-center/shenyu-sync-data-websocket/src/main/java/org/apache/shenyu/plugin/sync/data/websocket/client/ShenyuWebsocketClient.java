@@ -94,6 +94,7 @@ public final class ShenyuWebsocketClient extends WebSocketClient {
         super(serverUri, headers);
         this.websocketDataHandler = new WebsocketDataHandler(pluginDataSubscriber, metaDataSubscribers, authDataSubscribers);
         this.timer = WheelTimerFactory.getSharedTimer();
+        // Bean初始化的时候就连接admin触发数据同步操作了
         this.connection();
     }
 
@@ -125,7 +126,7 @@ public final class ShenyuWebsocketClient extends WebSocketClient {
     }
 
     /**
-     * ws连接打开的时候触发回调
+     * ws连接打开的时候触发回调，并且立即触发全量数据同步消息的发送给admin
      *
      * @param serverHandshake
      */
