@@ -35,6 +35,7 @@ public class ErrorHandlerConfiguration {
 
     /**
      * Error web exception handler error web exception handler.
+     * 响应式的错误异常处理器
      *
      * @return the error web exception handler
      */
@@ -47,8 +48,8 @@ public class ErrorHandlerConfiguration {
     /**
      * Hidden http method filter hidden http method filter.
      *
-     * @see <a href="https://github.com/spring-cloud/spring-cloud-gateway/issues/541">issues-541</a>
      * @return the hidden http method filter
+     * @see <a href="https://github.com/spring-cloud/spring-cloud-gateway/issues/541">issues-541</a>
      */
     @Bean
     public HiddenHttpMethodFilter hiddenHttpMethodFilter() {

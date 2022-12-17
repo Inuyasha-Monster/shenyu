@@ -66,34 +66,37 @@ import java.util.stream.Collectors;
  */
 @Configuration
 @ComponentScan("org.apache.shenyu")
-@AutoConfigureBefore(value = SpringExtConfiguration.class)
-@Import(value = ErrorHandlerConfiguration.class)
-@AutoConfigureAfter(value = ShenyuExtConfiguration.class)
+@AutoConfigureBefore(value = SpringExtConfiguration.class) // 在xxx之前加载配置
+@Import(value = ErrorHandlerConfiguration.class) // 优先触发指定的配置类
+@AutoConfigureAfter(value = ShenyuExtConfiguration.class) // 在xxx之后加载配置
 public class ShenyuConfiguration {
-    
+
     /**
      * logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(ShenyuConfiguration.class);
-    
+
     /**
      * Init ShenyuWebHandler.
+     * 网关的请求入口
      *
      * @param plugins this plugins is All impl ShenyuPlugin.
-     * @param config the config
+     * @param config  the config
      * @return {@linkplain ShenyuWebHandler}
      */
     @Bean("webHandler")
-    public ShenyuWebHandler shenyuWebHandler(final ObjectProvider<List<ShenyuPlugin>> plugins, final ShenyuConfig config) {
+    public ShenyuWebHandler shenyuWebHandler(final ObjectProvider<List<ShenyuPlugin>> plugins,
+                                             final ShenyuConfig config) {
         List<ShenyuPlugin> pluginList = plugins.getIfAvailable(Collections::emptyList);
         List<ShenyuPlugin> shenyuPlugins = pluginList.stream()
                 .sorted(Comparator.comparingInt(ShenyuPlugin::getOrder)).collect(Collectors.toList());
         shenyuPlugins.forEach(shenyuPlugin -> LOG.info("load plugin:[{}] [{}]", shenyuPlugin.named(), shenyuPlugin.getClass().getName()));
         return new ShenyuWebHandler(shenyuPlugins, config);
     }
-    
+
     /**
      * init dispatch handler.
+     * 本质是一个 org.springframework.web.server.WebHandler 用于处理前台请求，不过作用是用于请求分发
      *
      * @return {@link DispatcherHandler}.
      */
@@ -101,7 +104,7 @@ public class ShenyuConfiguration {
     public DispatcherHandler dispatcherHandler() {
         return new DispatcherHandler();
     }
-    
+
     /**
      * Param transform plugin.
      *
@@ -111,12 +114,12 @@ public class ShenyuConfiguration {
     public ShenyuPlugin paramTransformPlugin() {
         return new RpcParamTransformPlugin();
     }
-    
+
     /**
      * common plugin data subscriber.
      *
      * @param pluginDataHandlerList the plugin data handler list
-     * @param eventPublisher event publisher
+     * @param eventPublisher        event publisher
      * @return the plugin data subscriber
      */
     @Bean
@@ -135,13 +138,13 @@ public class ShenyuConfiguration {
     public MetaDataSubscriber commonMetaDataSubscriber(final ObjectProvider<List<MetaDataHandler>> metaDataHandlerList) {
         return new CommonMetaDataSubscriber(metaDataHandlerList.getIfAvailable(Collections::emptyList));
     }
-    
+
     /**
      * Shenyu loader service.
      *
-     * @param shenyuWebHandler the shenyu web handler
+     * @param shenyuWebHandler     the shenyu web handler
      * @param pluginDataSubscriber the plugin data subscriber
-     * @param config the config
+     * @param config               the config
      * @return the shenyu loader service
      */
     @Bean
@@ -150,7 +153,7 @@ public class ShenyuConfiguration {
                                                    final ShenyuConfig config) {
         return new ShenyuLoaderService(shenyuWebHandler, (CommonPluginDataSubscriber) pluginDataSubscriber, config);
     }
-    
+
     /**
      * Remote address resolver.
      *
@@ -161,12 +164,12 @@ public class ShenyuConfiguration {
     public RemoteAddressResolver remoteAddressResolver() {
         return new ForwardedRemoteAddressResolver(1);
     }
-    
+
     /**
      * Local dispatcher filter.
      *
      * @param dispatcherHandler the dispatcher handler
-     * @param shenyuConfig the shenyuConfig
+     * @param shenyuConfig      the shenyuConfig
      * @return the web filter
      */
     @Bean
@@ -175,7 +178,7 @@ public class ShenyuConfiguration {
     public WebFilter localDispatcherFilter(final DispatcherHandler dispatcherHandler, final ShenyuConfig shenyuConfig) {
         return new LocalDispatcherFilter(dispatcherHandler, shenyuConfig.getLocal().getSha512Key());
     }
-    
+
     /**
      * Cross filter.
      * if you application has cross-domain.
@@ -192,7 +195,7 @@ public class ShenyuConfiguration {
     public WebFilter crossFilter(final ShenyuConfig shenyuConfig) {
         return new CrossFilter(shenyuConfig.getCross());
     }
-    
+
     /**
      * Body web filter.
      *
@@ -205,7 +208,7 @@ public class ShenyuConfiguration {
     public WebFilter fileSizeFilter(final ShenyuConfig shenyuConfig) {
         return new FileSizeFilter(shenyuConfig.getFile().getMaxSize());
     }
-    
+
     /**
      * Exclude filter.
      *
@@ -218,11 +221,11 @@ public class ShenyuConfiguration {
     public WebFilter excludeFilter(final ShenyuConfig shenyuConfig) {
         return new ExcludeFilter(shenyuConfig.getExclude().getPaths());
     }
-    
+
     /**
      * fallback filter.
      *
-     * @param shenyuConfig the shenyu config
+     * @param shenyuConfig      the shenyu config
      * @param dispatcherHandler the dispatcher handler
      * @return the fallback web filter
      */
@@ -232,7 +235,7 @@ public class ShenyuConfiguration {
     public WebFilter fallbackFilter(final ShenyuConfig shenyuConfig, final DispatcherHandler dispatcherHandler) {
         return new FallbackFilter(shenyuConfig.getFallback().getPaths(), dispatcherHandler);
     }
-    
+
     /**
      * Health filter.
      *
@@ -245,7 +248,7 @@ public class ShenyuConfiguration {
     public WebFilter healthFilter(final ShenyuConfig shenyuConfig) {
         return new HealthFilter(shenyuConfig.getHealth().getPaths());
     }
-    
+
     /**
      * shenyu config.
      *

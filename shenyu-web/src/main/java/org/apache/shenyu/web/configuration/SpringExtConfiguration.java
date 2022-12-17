@@ -50,6 +50,7 @@ public class SpringExtConfiguration {
 
         @Override
         public void setApplicationContext(@NonNull final ApplicationContext applicationContext) throws BeansException {
+            // 持有spring上下文到静态字段中，方便拿出Bean使用
             SpringBeanUtils.getInstance().setApplicationContext(applicationContext);
             ShenyuConfig shenyuConfig = SpringBeanUtils.getInstance().getBean(ShenyuConfig.class);
             Singleton.INST.single(ShenyuConfig.class, shenyuConfig);
