@@ -97,7 +97,7 @@ public class ShenyuConfiguration {
     /**
      * init dispatch handler.
      * 本质是一个 org.springframework.web.server.WebHandler 用于处理前台请求，不过作用是用于请求分发
-     *
+     * 对标spring-mvc的 dispatcherServlet 组件
      * @return {@link DispatcherHandler}.
      */
     @Bean("dispatcherHandler")
