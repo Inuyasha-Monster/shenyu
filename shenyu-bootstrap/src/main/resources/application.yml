@@ -173,13 +173,13 @@ shenyu:
     allowedExpose: ""
     maxAge: "18000"
     allowCredentials: true
-
   switchConfig:
     local: true
   file:
     enabled: true
     maxSize : 10
   sync:
+    # 默认采用ws同步admin配置
     websocket:
       urls: ws://localhost:9095/websocket
       allowOrigin: ws://localhost:9195
