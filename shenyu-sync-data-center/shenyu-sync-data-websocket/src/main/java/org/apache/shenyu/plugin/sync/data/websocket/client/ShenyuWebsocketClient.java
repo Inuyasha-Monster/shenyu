@@ -191,6 +191,11 @@ public final class ShenyuWebsocketClient extends WebSocketClient {
         }
     }
 
+    /**
+     * 处理admin返回的数据
+     *
+     * @param result
+     */
     private void handleResult(final String result) {
         LOG.info("handleResult({})", result);
         WebsocketData<?> websocketData = GsonUtils.getInstance().fromJson(result, WebsocketData.class);

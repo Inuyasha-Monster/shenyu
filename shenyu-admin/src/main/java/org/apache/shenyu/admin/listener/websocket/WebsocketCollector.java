@@ -46,13 +46,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 @ServerEndpoint(value = "/websocket", configurator = WebsocketConfigurator.class)
 public class WebsocketCollector {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(WebsocketCollector.class);
-    
+
     private static final Set<Session> SESSION_SET = new CopyOnWriteArraySet<>();
-    
+
     private static final String SESSION_KEY = "sessionKey";
-    
+
     /**
      * On open.
      *
@@ -64,20 +64,21 @@ public class WebsocketCollector {
                 getClientIp(session), session.getMaxTextMessageBufferSize());
         SESSION_SET.add(session);
     }
-    
+
     private static String getClientIp(final Session session) {
         Map<String, Object> userProperties = session.getUserProperties();
         if (MapUtils.isEmpty(userProperties)) {
             return StringUtils.EMPTY;
         }
-        
+
         return Optional.ofNullable(userProperties.get(WebsocketListener.CLIENT_IP_NAME))
                 .map(Object::toString)
                 .orElse(StringUtils.EMPTY);
     }
-    
+
     /**
      * On message.
+     * 处理网关的请求
      *
      * @param message the message
      * @param session the session
@@ -87,16 +88,17 @@ public class WebsocketCollector {
         if (!Objects.equals(message, DataEventTypeEnum.MYSELF.name())) {
             return;
         }
-        
+
         try {
             ThreadLocalUtils.put(SESSION_KEY, session);
+            // 这里触发同步数据事件，实际上通过ws连接发送数据给网关
             SpringBeanUtils.getInstance().getBean(SyncDataService.class).syncAll(DataEventTypeEnum.MYSELF);
         } finally {
             ThreadLocalUtils.clear();
         }
 
     }
-    
+
     /**
      * On close.
      *
@@ -107,7 +109,7 @@ public class WebsocketCollector {
         clearSession(session);
         LOG.warn("websocket close on client[{}]", getClientIp(session));
     }
-    
+
     /**
      * On error.
      *
@@ -119,7 +121,7 @@ public class WebsocketCollector {
         clearSession(session);
         LOG.error("websocket collection on client[{}] error: ", getClientIp(session), error);
     }
-    
+
     /**
      * Send.
      *
@@ -130,7 +132,7 @@ public class WebsocketCollector {
         if (StringUtils.isBlank(message)) {
             return;
         }
-        
+
         if (DataEventTypeEnum.MYSELF == type) {
             Session session = (Session) ThreadLocalUtils.get(SESSION_KEY);
             if (Objects.nonNull(session)) {
@@ -139,9 +141,9 @@ public class WebsocketCollector {
         } else {
             SESSION_SET.forEach(session -> sendMessageBySession(session, message));
         }
-        
+
     }
-    
+
     private static synchronized void sendMessageBySession(final Session session, final String message) {
         try {
             session.getBasicRemote().sendText(message);
@@ -149,7 +151,7 @@ public class WebsocketCollector {
             LOG.error("websocket send result is exception: ", e);
         }
     }
-    
+
     private void clearSession(final Session session) {
         SESSION_SET.remove(session);
         ThreadLocalUtils.clear();

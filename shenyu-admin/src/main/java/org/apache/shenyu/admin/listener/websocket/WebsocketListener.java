@@ -33,7 +33,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-@WebListener
+@WebListener // 该注解用于监听servlet部分事件，通过实现指定接口来做
 @Configuration
 public class WebsocketListener implements ServletRequestListener {
 

@@ -39,6 +39,11 @@ public class PluginDataHandler extends AbstractDataHandler<PluginData> {
         return GsonUtils.getInstance().fromList(json, PluginData.class);
     }
 
+    /**
+     * 例如插件实现，就是对并发map的更新操作
+     *
+     * @param dataList the data list
+     */
     @Override
     protected void doRefresh(final List<PluginData> dataList) {
         pluginDataSubscriber.refreshPluginDataSelf(dataList);

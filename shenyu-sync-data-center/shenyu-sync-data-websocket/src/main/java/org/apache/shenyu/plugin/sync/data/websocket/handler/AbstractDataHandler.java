@@ -24,6 +24,7 @@ import org.apache.shenyu.common.enums.DataEventTypeEnum;
 
 /**
  * The type Abstract data handler.
+ * 不同类型交给指定子类去实现
  *
  * @param <T> the type parameter
  */
@@ -58,6 +59,12 @@ public abstract class AbstractDataHandler<T> implements DataHandler {
      */
     protected abstract void doDelete(List<T> dataList);
 
+    /**
+     * 抽象类定义标准的模板方法，子类通过钩子函数实现不同逻辑
+     *
+     * @param json      the data for json
+     * @param eventType the event type
+     */
     @Override
     public void handle(final String json, final String eventType) {
         List<T> dataList = convert(json);

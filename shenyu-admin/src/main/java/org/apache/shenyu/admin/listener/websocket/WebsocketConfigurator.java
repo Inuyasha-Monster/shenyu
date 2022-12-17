@@ -39,6 +39,7 @@ import static org.apache.tomcat.websocket.server.Constants.TEXT_BUFFER_SIZE_SERV
 
 /**
  * The Websocket configurator.
+ * ws配置类，指定协议握手和定制检查origin逻辑，以及指定建立ws连接的缓存大小设置
  *
  * @since 2.0.0
  */
@@ -54,6 +55,7 @@ public class WebsocketConfigurator extends ServerEndpointConfig.Configurator imp
     @Override
     public void modifyHandshake(final ServerEndpointConfig sec, final HandshakeRequest request, final HandshakeResponse response) {
         HttpSession httpSession = (HttpSession) request.getHttpSession();
+        // 设置ws连接的ClientIP属性
         sec.getUserProperties().put(WebsocketListener.CLIENT_IP_NAME, httpSession.getAttribute(WebsocketListener.CLIENT_IP_NAME));
         super.modifyHandshake(sec, request, response);
     }

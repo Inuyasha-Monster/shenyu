@@ -57,6 +57,7 @@ import java.util.Properties;
 
 /**
  * The type Data sync configuration.
+ * 根据配置指定同步方式以及加载对应的同步器
  */
 @Configuration
 public class DataSyncConfiguration {
@@ -118,7 +119,7 @@ public class DataSyncConfiguration {
         /**
          * Zookeeper data init zookeeper data init.
          *
-         * @param zkClient        the zk client
+         * @param zkClient the zk client
          * @return the zookeeper data init
          */
         @Bean
@@ -196,6 +197,7 @@ public class DataSyncConfiguration {
 
     /**
      * The WebsocketListener(default strategy).
+     * 默认启用ws的方式同步数据
      */
     @Configuration
     @ConditionalOnProperty(name = "shenyu.sync.websocket.enabled", havingValue = "true", matchIfMissing = true)
@@ -226,6 +228,7 @@ public class DataSyncConfiguration {
 
         /**
          * Server endpoint exporter server endpoint exporter.
+         * 注入ServerEndpointExporter，这个bean会自动注册使用了@ServerEndpoint注解声明的Websocket endpoint
          *
          * @return the server endpoint exporter
          */
@@ -273,7 +276,7 @@ public class DataSyncConfiguration {
         /**
          * data init.
          *
-         * @param etcdClient        the etcd client
+         * @param etcdClient the etcd client
          * @return the etcd data init
          */
         @Bean
@@ -293,6 +296,7 @@ public class DataSyncConfiguration {
 
         /**
          * init Consul client.
+         *
          * @param consulProperties the consul properties
          * @return Consul client
          */
