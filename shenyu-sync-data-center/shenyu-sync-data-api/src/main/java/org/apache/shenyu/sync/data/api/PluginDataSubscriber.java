@@ -18,6 +18,7 @@
 package org.apache.shenyu.sync.data.api;
 
 import java.util.List;
+
 import org.apache.shenyu.common.dto.PluginData;
 import org.apache.shenyu.common.dto.RuleData;
 import org.apache.shenyu.common.dto.SelectorData;
@@ -26,7 +27,7 @@ import org.apache.shenyu.common.dto.SelectorData;
  * The interface Plugin data subscriber.
  */
 public interface PluginDataSubscriber {
-    
+
     /**
      * On subscribe.
      *
@@ -34,7 +35,7 @@ public interface PluginDataSubscriber {
      */
     default void onSubscribe(PluginData pluginData) {
     }
-    
+
     /**
      * Un subscribe plugin data.
      *
@@ -42,13 +43,13 @@ public interface PluginDataSubscriber {
      */
     default void unSubscribe(PluginData pluginData) {
     }
-    
+
     /**
      * Refresh  all plugin data.
      */
     default void refreshPluginDataAll() {
     }
-    
+
     /**
      * Refresh plugin data self.
      *
@@ -56,7 +57,7 @@ public interface PluginDataSubscriber {
      */
     default void refreshPluginDataSelf(List<PluginData> pluginDataList) {
     }
-    
+
     /**
      * On selector subscribe.
      *
@@ -64,7 +65,7 @@ public interface PluginDataSubscriber {
      */
     default void onSelectorSubscribe(SelectorData selectorData) {
     }
-    
+
     /**
      * Un selector subscribe.
      *
@@ -72,13 +73,13 @@ public interface PluginDataSubscriber {
      */
     default void unSelectorSubscribe(SelectorData selectorData) {
     }
-    
+
     /**
      * Refresh all selector data.
      */
     default void refreshSelectorDataAll() {
     }
-    
+
     /**
      * Refresh selector data.
      *
@@ -86,7 +87,7 @@ public interface PluginDataSubscriber {
      */
     default void refreshSelectorDataSelf(List<SelectorData> selectorDataList) {
     }
-    
+
     /**
      * On rule subscribe.
      *
@@ -94,7 +95,7 @@ public interface PluginDataSubscriber {
      */
     default void onRuleSubscribe(RuleData ruleData) {
     }
-    
+
     /**
      * On rule subscribe.
      *
@@ -102,13 +103,13 @@ public interface PluginDataSubscriber {
      */
     default void unRuleSubscribe(RuleData ruleData) {
     }
-    
+
     /**
      * Refresh rule data.
      */
     default void refreshRuleDataAll() {
     }
-    
+
     /**
      * Refresh rule data self.
      *

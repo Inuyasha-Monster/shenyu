@@ -37,6 +37,10 @@ import java.util.List;
 
 /**
  * Websocket sync data configuration for spring boot.
+ *
+ * @author apache
+ * @ConditionalOnProperty(prefix = "shenyu.sync.websocket", name = "urls")
+ * 表示如果配置了同步方式为websocket且配置了地址的情况采用ws数据同步配置方式
  */
 @Configuration
 @ConditionalOnClass(WebsocketSyncDataService.class)
@@ -48,22 +52,29 @@ public class WebsocketSyncDataConfiguration {
     /**
      * Websocket sync data service.
      *
-     * @param websocketConfig   the websocket config
+     * @param websocketConfig  the websocket config
      * @param pluginSubscriber the plugin subscriber
-     * @param metaSubscribers   the meta subscribers
-     * @param authSubscribers   the auth subscribers
+     * @param metaSubscribers  the meta subscribers
+     * @param authSubscribers  the auth subscribers
      * @return the sync data service
      */
     @Bean
-    public SyncDataService websocketSyncDataService(final ObjectProvider<WebsocketConfig> websocketConfig, final ObjectProvider<PluginDataSubscriber> pluginSubscriber,
-                                           final ObjectProvider<List<MetaDataSubscriber>> metaSubscribers, final ObjectProvider<List<AuthDataSubscriber>> authSubscribers) {
+    public SyncDataService websocketSyncDataService(final ObjectProvider<WebsocketConfig> websocketConfig,
+                                                    final ObjectProvider<PluginDataSubscriber> pluginSubscriber,
+                                                    final ObjectProvider<List<MetaDataSubscriber>> metaSubscribers,
+                                                    final ObjectProvider<List<AuthDataSubscriber>> authSubscribers) {
+        // 使用 ObjectProvider 更加灵活的处理当注入对象不存在的情况，getIfAvailable方法可以兜底
         LOGGER.info("you use websocket sync shenyu data.......");
-        return new WebsocketSyncDataService(websocketConfig.getIfAvailable(WebsocketConfig::new), pluginSubscriber.getIfAvailable(),
-                metaSubscribers.getIfAvailable(Collections::emptyList), authSubscribers.getIfAvailable(Collections::emptyList));
+        return new WebsocketSyncDataService(
+                websocketConfig.getIfAvailable(WebsocketConfig::new),
+                pluginSubscriber.getIfAvailable(),
+                metaSubscribers.getIfAvailable(Collections::emptyList),
+                authSubscribers.getIfAvailable(Collections::emptyList));
     }
 
     /**
      * Config websocket config.
+     * 注入ws配置
      *
      * @return the websocket config
      */

@@ -181,8 +181,8 @@ shenyu:
   sync:
     # 默认采用ws同步admin配置
     websocket:
-      urls: ws://localhost:9095/websocket
-      allowOrigin: ws://localhost:9195
+      urls: ws://localhost:9095/websocket # admin的ws地址
+      allowOrigin: ws://localhost:9195 # 配置admin允许的白名单域名
 #    zookeeper:
 #      url: localhost:2181
 #      sessionTimeout: 5000

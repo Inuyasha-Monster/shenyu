@@ -41,22 +41,25 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * The type shenyu websocket client.
+ * org.java-websocket:Java-WebSocket:1.5.0
+ * 提供基础的ws-client能力
  */
 public final class ShenyuWebsocketClient extends WebSocketClient {
-    
+
     /**
      * logger.
      */
     private static final Logger LOG = LoggerFactory.getLogger(ShenyuWebsocketClient.class);
-    
+
     private volatile boolean alreadySync = Boolean.FALSE;
-    
+
     private final WebsocketDataHandler websocketDataHandler;
-    
+
     private final Timer timer;
-    
+
+    // 保存引用方便取消
     private TimerTask timerTask;
-    
+
     /**
      * Instantiates a new shenyu websocket client.
      *
@@ -77,11 +80,12 @@ public final class ShenyuWebsocketClient extends WebSocketClient {
 
     /**
      * Instantiates a new shenyu websocket client.
-     * @param serverUri the server uri
-     * @param headers the headers
+     *
+     * @param serverUri            the server uri
+     * @param headers              the headers
      * @param pluginDataSubscriber the plugin data subscriber
-     * @param metaDataSubscribers the meta data subscribers
-     * @param authDataSubscribers the auth data subscribers
+     * @param metaDataSubscribers  the meta data subscribers
+     * @param authDataSubscribers  the auth data subscribers
      */
     public ShenyuWebsocketClient(final URI serverUri, final Map<String, String> headers,
                                  final PluginDataSubscriber pluginDataSubscriber,
@@ -95,6 +99,7 @@ public final class ShenyuWebsocketClient extends WebSocketClient {
 
     private void connection() {
         this.connectBlocking();
+        // 建立连接之后不管成功还是失败，开启定时健康检查任务，10ms一次
         this.timer.add(timerTask = new AbstractRoundTask(null, TimeUnit.SECONDS.toMillis(10)) {
             @Override
             public void doRun(final String key, final TimerTask timerTask) {
@@ -102,7 +107,7 @@ public final class ShenyuWebsocketClient extends WebSocketClient {
             }
         });
     }
-    
+
     @Override
     public boolean connectBlocking() {
         boolean success = false;
@@ -119,29 +124,40 @@ public final class ShenyuWebsocketClient extends WebSocketClient {
         return success;
     }
 
+    /**
+     * ws连接打开的时候触发回调
+     *
+     * @param serverHandshake
+     */
     @Override
     public void onOpen(final ServerHandshake serverHandshake) {
         if (!alreadySync) {
+            // 发送同步指令
             send(DataEventTypeEnum.MYSELF.name());
             alreadySync = true;
         }
     }
-    
+
+    /**
+     * admin回包处理
+     *
+     * @param result
+     */
     @Override
     public void onMessage(final String result) {
         handleResult(result);
     }
-    
+
     @Override
     public void onClose(final int i, final String s, final boolean b) {
         this.close();
     }
-    
+
     @Override
     public void onError(final Exception e) {
         LOG.error("websocket server[{}] is error.....", getURI(), e);
     }
-    
+
     @Override
     public void close() {
         alreadySync = false;
@@ -149,7 +165,7 @@ public final class ShenyuWebsocketClient extends WebSocketClient {
             super.close();
         }
     }
-    
+
     /**
      * Now close.
      * now close. will cancel the task execution.
@@ -158,7 +174,10 @@ public final class ShenyuWebsocketClient extends WebSocketClient {
         this.close();
         timerTask.cancel();
     }
-    
+
+    /**
+     * 检查ws连接是否正常，是则发送ping指令，否则重连
+     */
     private void healthCheck() {
         try {
             if (!this.isOpen()) {
@@ -171,7 +190,7 @@ public final class ShenyuWebsocketClient extends WebSocketClient {
             LOG.error("websocket connect is error :{}", e.getMessage());
         }
     }
-    
+
     private void handleResult(final String result) {
         LOG.info("handleResult({})", result);
         WebsocketData<?> websocketData = GsonUtils.getInstance().fromJson(result, WebsocketData.class);

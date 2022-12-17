@@ -64,14 +64,22 @@ public class WebsocketSyncDataService implements SyncDataService {
                                     final PluginDataSubscriber pluginDataSubscriber,
                                     final List<MetaDataSubscriber> metaDataSubscribers,
                                     final List<AuthDataSubscriber> authDataSubscribers) {
+        // 处理当有多个admin的情况
         String[] urls = StringUtils.split(websocketConfig.getUrls(), ",");
         for (String url : urls) {
             try {
                 if (StringUtils.isNotEmpty(websocketConfig.getAllowOrigin())) {
                     Map<String, String> headers = ImmutableMap.of(ORIGIN_HEADER_NAME, websocketConfig.getAllowOrigin());
-                    clients.add(new ShenyuWebsocketClient(new URI(url), headers, Objects.requireNonNull(pluginDataSubscriber), metaDataSubscribers, authDataSubscribers));
+                    clients.add(new ShenyuWebsocketClient(new URI(url),
+                            headers,
+                            Objects.requireNonNull(pluginDataSubscriber),
+                            metaDataSubscribers,
+                            authDataSubscribers));
                 } else {
-                    clients.add(new ShenyuWebsocketClient(new URI(url), Objects.requireNonNull(pluginDataSubscriber), metaDataSubscribers, authDataSubscribers));
+                    clients.add(new ShenyuWebsocketClient(new URI(url),
+                            Objects.requireNonNull(pluginDataSubscriber),
+                            metaDataSubscribers,
+                            authDataSubscribers));
                 }
             } catch (URISyntaxException e) {
                 LOG.error("websocket url({}) is error", url, e);
