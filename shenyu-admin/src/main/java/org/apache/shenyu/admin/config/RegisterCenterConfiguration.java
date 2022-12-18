@@ -46,18 +46,20 @@ public class RegisterCenterConfiguration {
     public ShenyuRegisterCenterConfig shenyuRegisterCenterConfig() {
         return new ShenyuRegisterCenterConfig();
     }
-    
+
     /**
      * Shenyu client server register repository server register repository.
      *
-     * @param shenyuRegisterCenterConfig the shenyu register center config
+     * @param shenyuRegisterCenterConfig  the shenyu register center config
      * @param shenyuClientRegisterService the shenyu client register service
      * @return the shenyu server register repository
      */
     @Bean(destroyMethod = "close")
-    public ShenyuClientServerRegisterRepository shenyuClientServerRegisterRepository(final ShenyuRegisterCenterConfig shenyuRegisterCenterConfig,
-                                                                               final List<ShenyuClientRegisterService> shenyuClientRegisterService) {
+    public ShenyuClientServerRegisterRepository shenyuClientServerRegisterRepository(
+            final ShenyuRegisterCenterConfig shenyuRegisterCenterConfig,
+            final List<ShenyuClientRegisterService> shenyuClientRegisterService) {
         String registerType = shenyuRegisterCenterConfig.getRegisterType();
+        // 动态加载对应的注册中心实现
         ShenyuClientServerRegisterRepository registerRepository = ExtensionLoader.getExtensionLoader(ShenyuClientServerRegisterRepository.class).getJoin(registerType);
         RegisterClientServerDisruptorPublisher publisher = RegisterClientServerDisruptorPublisher.getInstance();
         Map<String, ShenyuClientRegisterService> registerServiceMap = shenyuClientRegisterService.stream().collect(Collectors.toMap(ShenyuClientRegisterService::rpcType, e -> e));
