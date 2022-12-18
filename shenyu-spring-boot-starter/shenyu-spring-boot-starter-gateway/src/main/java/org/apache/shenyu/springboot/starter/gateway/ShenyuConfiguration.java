@@ -79,6 +79,7 @@ public class ShenyuConfiguration {
     /**
      * Init ShenyuWebHandler.
      * 网关的请求入口，注意这里的名字："webHandler" 与内部的 HttpHandler 的 webHandler 同名，也就是用shenyu的实现打入内部
+     * 相当于接管了所有针对该服务器的请求
      *
      * @param plugins this plugins is All impl ShenyuPlugin.
      * @param config  the config
@@ -97,7 +98,9 @@ public class ShenyuConfiguration {
     /**
      * init dispatch handler.
      * 本质是一个 org.springframework.web.server.WebHandler 用于处理前台请求，不过作用是用于请求分发
-     * 对标spring-mvc的 dispatcherServlet 组件
+     * 对标spring-mvc的 dispatcherServlet 组件，这里更名为 "dispatcherHandler"（原本名字："webHandler"）
+     * 实现针对某些通过注解方式注册的路由请求进行兼容
+     *
      * @return {@link DispatcherHandler}.
      */
     @Bean("dispatcherHandler")
