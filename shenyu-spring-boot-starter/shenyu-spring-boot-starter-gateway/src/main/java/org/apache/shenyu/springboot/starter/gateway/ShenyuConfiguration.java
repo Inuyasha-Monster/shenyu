@@ -78,7 +78,7 @@ public class ShenyuConfiguration {
 
     /**
      * Init ShenyuWebHandler.
-     * 网关的请求入口
+     * 网关的请求入口，注意这里的名字："webHandler" 与内部的 HttpHandler 的 webHandler 同名，也就是用shenyu的实现打入内部
      *
      * @param plugins this plugins is All impl ShenyuPlugin.
      * @param config  the config
