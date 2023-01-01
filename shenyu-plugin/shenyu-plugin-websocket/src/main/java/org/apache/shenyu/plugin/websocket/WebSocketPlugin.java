@@ -61,15 +61,15 @@ import java.util.stream.Collectors;
  * The type Web socket plugin.
  */
 public class WebSocketPlugin extends AbstractShenyuPlugin {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(WebSocketPlugin.class);
-    
+
     private static final String SEC_WEB_SOCKET_PROTOCOL = "Sec-WebSocket-Protocol";
-    
+
     private final WebSocketClient webSocketClient;
-    
+
     private final WebSocketService webSocketService;
-    
+
     /**
      * Instantiates a new Web socket plugin.
      *
@@ -80,7 +80,7 @@ public class WebSocketPlugin extends AbstractShenyuPlugin {
         this.webSocketClient = webSocketClient;
         this.webSocketService = webSocketService;
     }
-    
+
     @Override
     protected Mono<Void> doExecute(final ServerWebExchange exchange, final ShenyuPluginChain chain, final SelectorData selector, final RuleData rule) {
         final List<Upstream> upstreamList = UpstreamCacheManager.getInstance().findUpstreamListBySelectorId(selector.getId());
@@ -91,6 +91,7 @@ public class WebSocketPlugin extends AbstractShenyuPlugin {
         }
         final DivideRuleHandle ruleHandle = GsonUtils.getInstance().fromJson(rule.getHandle(), DivideRuleHandle.class);
         final String ip = Objects.requireNonNull(exchange.getRequest().getRemoteAddress()).getAddress().getHostAddress();
+        // 通过负载均衡拿出其中一个上游地址进行ws连接
         Upstream upstream = LoadBalancerFactory.selector(upstreamList, ruleHandle.getLoadBalance(), ip);
         if (Objects.isNull(upstream)) {
             LOG.error("websocket has no upstream");
@@ -103,7 +104,7 @@ public class WebSocketPlugin extends AbstractShenyuPlugin {
         return this.webSocketService.handleRequest(exchange, new ShenyuWebSocketHandler(
                 wsRequestUrl, this.webSocketClient, filterHeaders(headers), buildWsProtocols(headers)));
     }
-    
+
     private String buildWsRealPath(final ServerWebExchange exchange, final Upstream upstream, final ShenyuContext shenyuContext) {
         String protocol = upstream.getProtocol();
         if (!StringUtils.hasLength(protocol)) {
@@ -115,7 +116,7 @@ public class WebSocketPlugin extends AbstractShenyuPlugin {
         }
         return protocol + upstream.getUrl() + path;
     }
-    
+
     private List<String> buildWsProtocols(final HttpHeaders headers) {
         List<String> protocols = headers.get(SEC_WEB_SOCKET_PROTOCOL);
         if (CollectionUtils.isEmpty(protocols)) {
@@ -126,7 +127,7 @@ public class WebSocketPlugin extends AbstractShenyuPlugin {
                 .map(String::trim)
                 .collect(Collectors.toList());
     }
-    
+
     private HttpHeaders filterHeaders(final HttpHeaders headers) {
         HttpHeaders filtered = new HttpHeaders();
         headers.entrySet().stream()
@@ -136,12 +137,12 @@ public class WebSocketPlugin extends AbstractShenyuPlugin {
                         header.getValue()));
         return filtered;
     }
-    
+
     @Override
     public String named() {
         return PluginEnum.WEB_SOCKET.getName();
     }
-    
+
     /**
      * plugin is execute.
      *
@@ -151,32 +152,35 @@ public class WebSocketPlugin extends AbstractShenyuPlugin {
     public boolean skip(final ServerWebExchange exchange) {
         return skipExcept(exchange, RpcTypeEnum.WEB_SOCKET);
     }
-    
+
     @Override
     protected Mono<Void> handleSelectorIfNull(final String pluginName, final ServerWebExchange exchange, final ShenyuPluginChain chain) {
         return WebFluxResultUtils.noSelectorResult(pluginName, exchange);
     }
-    
+
     @Override
     protected Mono<Void> handleRuleIfNull(final String pluginName, final ServerWebExchange exchange, final ShenyuPluginChain chain) {
         return WebFluxResultUtils.noRuleResult(pluginName, exchange);
     }
-    
+
     @Override
     public int getOrder() {
         return PluginEnum.WEB_SOCKET.getCode();
     }
-    
+
     private static class ShenyuWebSocketHandler implements WebSocketHandler {
-        
+
         private final WebSocketClient client;
-        
+
+        /**
+         * 真实的服务器ws地址
+         */
         private final URI url;
-        
+
         private final HttpHeaders headers;
-        
+
         private final List<String> subProtocols;
-        
+
         /**
          * Instantiates a new shenyu web socket handler.
          *
@@ -193,30 +197,51 @@ public class WebSocketPlugin extends AbstractShenyuPlugin {
             this.headers = headers;
             this.subProtocols = ObjectUtils.defaultIfNull(protocols, Collections.emptyList());
         }
-        
+
         @NonNull
         @Override
         public List<String> getSubProtocols() {
             return this.subProtocols;
         }
-        
+
+        /**
+         * 处理ws协议转发
+         *
+         * @param session 用户端ws会话对象
+         * @return
+         */
         @NonNull
         @Override
         public Mono<Void> handle(@NonNull final WebSocketSession session) {
             // pass headers along so custom headers can be sent through
             return client.execute(url, this.headers, new WebSocketHandler() {
-                
+
+                /**
+                 * 处理服务端ws协议的转发
+                 * @param webSocketSession 服务端ws会话对象
+                 * @return
+                 */
                 @NonNull
                 @Override
                 public Mono<Void> handle(@NonNull final WebSocketSession webSocketSession) {
-                    // Use retain() for Reactor Netty
+                    // Use retain() for Reactor Netty：DataBufferUtils.retain(this.payload)
+                    // 通过数据缓冲区暂时缓存该数据，增加消息传递效率
+
+                    // webSocketSession：服务端ws会话对象
+                    // session：用户端ws会话对象
+
+                    // 将用户端ws请求转发给服务端
                     Mono<Void> sessionSend = webSocketSession
                             .send(session.receive().doOnNext(WebSocketMessage::retain));
+
+                    // 将服务端响应转发给用户端
                     Mono<Void> serverSessionSend = session.send(
                             webSocketSession.receive().doOnNext(WebSocketMessage::retain));
+
+                    // 将上面2个操作进行合并
                     return Mono.zip(sessionSend, serverSessionSend).then();
                 }
-                
+
                 @NonNull
                 @Override
                 public List<String> getSubProtocols() {

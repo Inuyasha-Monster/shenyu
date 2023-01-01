@@ -56,7 +56,7 @@ public class WebSocketPluginConfiguration {
     /**
      * Web socket plugin web socket plugin.
      *
-     * @param webSocketClient the web socket client
+     * @param webSocketClient  the web socket client
      * @param webSocketService the web socket service
      * @return the web socket plugin
      */
@@ -67,6 +67,7 @@ public class WebSocketPluginConfiguration {
 
     /**
      * Reactor netty web socket client.
+     * WebSocketClient接口的实现，由netty来承载
      *
      * @param shenyuConfig the shenyu config
      * @param httpClient   the http client
@@ -82,6 +83,7 @@ public class WebSocketPluginConfiguration {
 
     /**
      * Web socket service.
+     * WebSocketService的实现Bean，处理ws协议的握手和http升级处理
      *
      * @return the web socket service
      */

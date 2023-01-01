@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * TaskQueue.
+ * 优先创建线程去执行任务
  */
 public interface TaskQueue<E> extends BlockingQueue<E> {
 
