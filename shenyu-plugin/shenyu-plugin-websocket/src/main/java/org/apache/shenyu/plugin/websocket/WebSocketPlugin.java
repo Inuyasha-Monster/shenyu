@@ -48,6 +48,7 @@ import org.springframework.web.reactive.socket.client.WebSocketClient;
 import org.springframework.web.reactive.socket.server.WebSocketService;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -230,13 +231,15 @@ public class WebSocketPlugin extends AbstractShenyuPlugin {
                     // webSocketSession：服务端ws会话对象
                     // session：用户端ws会话对象
 
-                    // 将用户端ws请求转发给服务端
-                    Mono<Void> sessionSend = webSocketSession
-                            .send(session.receive().doOnNext(WebSocketMessage::retain));
+                    // 接收用户端ws请求消息
+                    final Flux<WebSocketMessage> clientMessages = session.receive().doOnNext(WebSocketMessage::retain);
+                    // 通过服务端的ws连接转发请求消息
+                    Mono<Void> sessionSend = webSocketSession.send(clientMessages);
 
-                    // 将服务端响应转发给用户端
-                    Mono<Void> serverSessionSend = session.send(
-                            webSocketSession.receive().doOnNext(WebSocketMessage::retain));
+                    // 接收服务端的响应消息
+                    final Flux<WebSocketMessage> serverMessages = webSocketSession.receive().doOnNext(WebSocketMessage::retain);
+                    // 通过客户端ws连接将服务端响应消息转发给用户端
+                    Mono<Void> serverSessionSend = session.send(serverMessages);
 
                     // 将上面2个操作进行合并
                     return Mono.zip(sessionSend, serverSessionSend).then();
