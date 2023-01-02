@@ -96,7 +96,9 @@ public abstract class AbstractDubboPlugin extends AbstractShenyuPlugin {
             Object error = ShenyuResultWrap.error(exchange, ShenyuResultEnum.META_DATA_ERROR);
             return WebFluxResultUtils.result(exchange, error);
         }
-        if (Objects.nonNull(metaData) && StringUtils.isNoneBlank(metaData.getParameterTypes()) && StringUtils.isBlank(param)) {
+        if (Objects.nonNull(metaData)
+                && StringUtils.isNoneBlank(metaData.getParameterTypes())
+                && StringUtils.isBlank(param)) {
             exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
             Object error = ShenyuResultWrap.error(exchange, ShenyuResultEnum.DUBBO_HAVE_BODY_PARAM);
             return WebFluxResultUtils.result(exchange, error);
