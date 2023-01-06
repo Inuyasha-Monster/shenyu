@@ -43,6 +43,8 @@ import java.util.concurrent.TimeUnit;
  * The type shenyu websocket client.
  * org.java-websocket:Java-WebSocket:1.5.0
  * 提供基础的ws-client能力
+ * 补充一下tcp模型：默认client只会建立一个tcp连接且会复用,需要用户注意reconnect逻辑
+ * 线程模型：一个读线程，一个写线程，一个connectChecker线程
  */
 public final class ShenyuWebsocketClient extends WebSocketClient {
 
