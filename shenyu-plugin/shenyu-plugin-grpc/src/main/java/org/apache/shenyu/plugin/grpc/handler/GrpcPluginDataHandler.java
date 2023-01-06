@@ -54,6 +54,7 @@ public class GrpcPluginDataHandler implements PluginDataHandler {
         if (Objects.isNull(selectorData.getName())) {
             return;
         }
+        // 监听选择器数据变化构建client
         GrpcClientCache.initGrpcClient(selectorData.getName());
         ApplicationConfigCache.getInstance().initPrx(selectorData);
     }

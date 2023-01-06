@@ -130,6 +130,7 @@ public class JsonMessage {
             Object value = entry.getValue();
 
             String fullName = key.getFullName();
+            // "JsonMessage.data"
             String jsonMessageFullName = GrpcConstants.JSON_DESCRIPTOR_PROTO_NAME + "." + GrpcConstants.JSON_DESCRIPTOR_PROTO_FIELD_NAME;
             if (jsonMessageFullName.equals(fullName)) {
                 return (String) value;

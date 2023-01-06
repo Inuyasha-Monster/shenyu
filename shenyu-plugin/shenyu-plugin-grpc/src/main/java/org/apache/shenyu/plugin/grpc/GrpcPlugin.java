@@ -79,7 +79,7 @@ public class GrpcPlugin extends AbstractShenyuPlugin {
             Object error = ShenyuResultWrap.error(exchange, ShenyuResultEnum.GRPC_HAVE_BODY_PARAM);
             return WebFluxResultUtils.result(exchange, error);
         }
-
+        // 根据选择器的path找对应的client
         final ShenyuGrpcClient client = GrpcClientCache.getGrpcClient(selector.getName());
         if (Objects.isNull(client)) {
             exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -87,18 +87,22 @@ public class GrpcPlugin extends AbstractShenyuPlugin {
             return WebFluxResultUtils.result(exchange, error);
         }
 
+        // 内部存储了后端grpc服务需要调用的methodName
         GrpcExtInfo extInfo = GsonUtils.getGson().fromJson(metaData.getRpcExt(), GrpcExtInfo.class);
+
         CallOptions callOptions = CallOptions.DEFAULT.withDeadlineAfter(extInfo.timeout, TimeUnit.MILLISECONDS);
         Map<String, Map<String, String>> rpcContext = exchange.getAttribute(Constants.GENERAL_CONTEXT);
         Optional.ofNullable(rpcContext).map(context -> context.get(PluginEnum.GRPC.getName())).ifPresent(
-            context -> Context.current().withValue(RPC_CONTEXT_KEY, context).attach());
+                context -> Context.current().withValue(RPC_CONTEXT_KEY, context).attach());
+
         CompletableFuture<ShenyuGrpcResponse> result = client.call(metaData, callOptions, param, extInfo.methodType);
+
         Context.current().detach(Context.ROOT);
 
-        return Mono.fromFuture(result.thenApply(ret -> {
-            exchange.getAttributes().put(Constants.RPC_RESULT, ret.getResults());
+        return Mono.fromFuture(result.thenApply(grpcResponse -> {
+            exchange.getAttributes().put(Constants.RPC_RESULT, grpcResponse.getResults());
             exchange.getAttributes().put(Constants.CLIENT_RESPONSE_RESULT_TYPE, ResultEnum.SUCCESS.getName());
-            return ret;
+            return grpcResponse;
         })).onErrorMap(ShenyuException::new).then(chain.execute(exchange));
     }
 

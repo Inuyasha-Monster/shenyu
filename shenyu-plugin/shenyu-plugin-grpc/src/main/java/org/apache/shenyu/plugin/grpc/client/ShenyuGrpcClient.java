@@ -50,15 +50,15 @@ import static io.grpc.stub.ClientCalls.asyncBidiStreamingCall;
  * The shenyu grpc client.
  */
 public class ShenyuGrpcClient implements Closeable {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(ShenyuGrpcClient.class);
-    
+
     private final ManagedChannel channel;
-    
+
     public ShenyuGrpcClient(final ManagedChannel channel) {
         this.channel = channel;
     }
-    
+
     /**
      * Grpc call.
      *
@@ -74,23 +74,23 @@ public class ShenyuGrpcClient implements Closeable {
                                                       final MethodDescriptor.MethodType methodType) {
         List<DynamicMessage> jsonRequestList = JsonMessage.buildJsonMessageList(GsonUtils.getInstance().toObjectMap(requestJsons));
         DynamicMessage jsonResponse = JsonMessage.buildJsonMessage();
-        
+
         MethodDescriptor<DynamicMessage, DynamicMessage> jsonMarshallerMethodDescriptor = JsonMessage.createJsonMarshallerMethodDescriptor(metaData.getServiceName(),
                 metaData.getMethodName(),
                 methodType,
                 jsonRequestList.get(0),
                 jsonResponse);
-        
+
         ShenyuGrpcResponse shenyuGrpcResponse = new ShenyuGrpcResponse();
         StreamObserver<DynamicMessage> streamObserver = MessageWriter.newInstance(shenyuGrpcResponse);
-        
+
         ShenyuGrpcCallRequest callParams = new ShenyuGrpcCallRequest();
         callParams.setMethodDescriptor(jsonMarshallerMethodDescriptor);
         callParams.setChannel(channel);
         callParams.setCallOptions(callOptions);
         callParams.setResponseObserver(streamObserver);
         callParams.setRequests(jsonRequestList);
-        
+
         try {
             this.invoke(callParams).get();
         } catch (InterruptedException e) {
@@ -107,7 +107,7 @@ public class ShenyuGrpcClient implements Closeable {
         }
         return CompletableFuture.completedFuture(shenyuGrpcResponse);
     }
-    
+
     /**
      * Grpc call.
      *
@@ -117,11 +117,11 @@ public class ShenyuGrpcClient implements Closeable {
     public ListenableFuture<Void> invoke(final ShenyuGrpcCallRequest callParams) {
         MethodDescriptor.MethodType methodType = callParams.getMethodDescriptor().getType();
         List<DynamicMessage> requestList = callParams.getRequests();
-        
+
         StreamObserver<DynamicMessage> responseObserver = callParams.getResponseObserver();
         CompleteObserver<DynamicMessage> doneObserver = new CompleteObserver<>();
         StreamObserver<DynamicMessage> compositeObserver = CompositeStreamObserver.of(responseObserver, doneObserver);
-        
+
         StreamObserver<DynamicMessage> requestObserver;
         switch (methodType) {
             case UNARY:
@@ -145,14 +145,13 @@ public class ShenyuGrpcClient implements Closeable {
                 return null;
         }
     }
-    
+
     @Override
     public void close() {
         this.channel.shutdown();
     }
-    
+
     private ClientCall<DynamicMessage, DynamicMessage> createCall(final ShenyuGrpcCallRequest callParams) {
-        return callParams.getChannel().newCall(callParams.getMethodDescriptor(),
-                callParams.getCallOptions());
+        return callParams.getChannel().newCall(callParams.getMethodDescriptor(), callParams.getCallOptions());
     }
 }

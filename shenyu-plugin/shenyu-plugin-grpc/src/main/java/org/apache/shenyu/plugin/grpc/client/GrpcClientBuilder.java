@@ -58,7 +58,8 @@ public final class GrpcClientBuilder {
      * @return ShenyuGrpcClient  shenyuGrpcClient
      */
     public static ShenyuGrpcClient buildClient(final String contextPath) {
-        ManagedChannelBuilder<?> builder = ManagedChannelBuilder.forTarget(contextPath)
+        ManagedChannelBuilder<?> builder = ManagedChannelBuilder
+                .forTarget(contextPath)
                 .intercept(new ContextClientInterceptor())
                 .defaultLoadBalancingPolicy(LoadBalancerStrategy.RANDOM.getStrategy())
                 .usePlaintext()
