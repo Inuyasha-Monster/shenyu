@@ -82,6 +82,8 @@ public class ShenyuGrpcClient implements Closeable {
                 jsonResponse);
 
         ShenyuGrpcResponse shenyuGrpcResponse = new ShenyuGrpcResponse();
+
+        // 定义接受处理后端grpc服务响应的处理逻辑
         StreamObserver<DynamicMessage> streamObserver = MessageWriter.newInstance(shenyuGrpcResponse);
 
         ShenyuGrpcCallRequest callParams = new ShenyuGrpcCallRequest();
@@ -119,6 +121,7 @@ public class ShenyuGrpcClient implements Closeable {
         List<DynamicMessage> requestList = callParams.getRequests();
 
         StreamObserver<DynamicMessage> responseObserver = callParams.getResponseObserver();
+        // 这里额外定义一个完成监听的订阅者,方便处理grpc请求完成监听
         CompleteObserver<DynamicMessage> doneObserver = new CompleteObserver<>();
         StreamObserver<DynamicMessage> compositeObserver = CompositeStreamObserver.of(responseObserver, doneObserver);
 
