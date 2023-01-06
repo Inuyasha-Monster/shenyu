@@ -60,6 +60,8 @@ import java.util.stream.Collectors;
 
 /**
  * The type Web socket plugin.
+ * ws的tcp连接模型目前来看是 1：1：1 的方式对应 client：getaway：backend
+ * 此连接模型可能存在大量tcp连接的情况
  */
 public class WebSocketPlugin extends AbstractShenyuPlugin {
 
