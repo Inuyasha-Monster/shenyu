@@ -39,7 +39,7 @@ import java.util.List;
  * Websocket sync data configuration for spring boot.
  *
  * @author apache
- * @ConditionalOnProperty(prefix = "shenyu.sync.websocket", name = "urls")
+ * ConditionalOnProperty(prefix = "shenyu.sync.websocket", name = "urls")
  * 表示如果配置了同步方式为websocket且配置了地址的情况采用ws数据同步配置方式
  */
 @Configuration

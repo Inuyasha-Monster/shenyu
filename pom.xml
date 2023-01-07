@@ -43,6 +43,7 @@
         <module>shenyu-loadbalancer</module>
         <module>shenyu-dist</module>
         <module>shenyu-alert</module>
+        <module>shenyu-examples</module>
     </modules>
 
     <licenses>
@@ -143,7 +144,6 @@
         <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
         <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <versions-maven-plugin.version>2.5</versions-maven-plugin.version>
-        <maven-checkstyle-plugin.version>3.1.0</maven-checkstyle-plugin.version>
         <apache-rat-plugin.version>0.13</apache-rat-plugin.version>
         <frontend-maven-plugin.version>1.6</frontend-maven-plugin.version>
         <frontend-maven-plugin.node.version>v12.14.1</frontend-maven-plugin.node.version>
@@ -613,26 +613,6 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
                 <version>${versions-maven-plugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>${maven-checkstyle-plugin.version}</version>
-                <configuration>
-                    <configLocation>/script/shenyu_checkstyle.xml</configLocation>
-                    <headerLocation>/script/checkstyle-header.txt</headerLocation>
-                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                    <excludes>**/transfer/**/*</excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>validate</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>check</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>

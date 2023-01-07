@@ -31,9 +31,10 @@ import java.util.Objects;
 /**
  * The Websocket listener.
  *
+ * WebListener 该注解用于监听servlet部分事件，通过实现指定接口来做
  * @since 2.0.0
  */
-@WebListener // 该注解用于监听servlet部分事件，通过实现指定接口来做
+@WebListener
 @Configuration
 public class WebsocketListener implements ServletRequestListener {
 
