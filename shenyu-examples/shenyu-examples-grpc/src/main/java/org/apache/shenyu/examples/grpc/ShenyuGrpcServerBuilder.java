@@ -29,6 +29,7 @@ public class ShenyuGrpcServerBuilder implements GrpcServerBuilder {
 
     @Override
     public ServerBuilder<?> buildServerBuilder() {
+        // 这里交给用户设置一些grpc的服务端参数，例如线程池大小等等
         return ServerBuilder.forPort(38080);
     }
 }

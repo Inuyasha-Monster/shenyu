@@ -56,11 +56,13 @@ public class GrpcServerRunner implements ApplicationRunner {
 
         List<ServerServiceDefinition> serviceDefinitions = grpcClientEventListener.getServiceDefinitions();
         for (ServerServiceDefinition serviceDefinition : serviceDefinitions) {
+            // 将暴露的服务加入grpcServer中
             serverBuilder.addService(serviceDefinition);
             LOG.info("{} has been add to grpc server", serviceDefinition.getServiceDescriptor().getName());
         }
 
         try {
+            // 监听端口开始对外服务
             Server server = serverBuilder.build().start();
 
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {

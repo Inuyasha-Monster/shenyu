@@ -98,7 +98,9 @@ public class GrpcClientEventListener implements ApplicationListener<ContextRefre
     public void onApplicationEvent(@NonNull final ContextRefreshedEvent contextRefreshedEvent) {
         Map<String, BindableService> beans = contextRefreshedEvent.getApplicationContext().getBeansOfType(BindableService.class);
         for (Map.Entry<String, BindableService> entry : beans.entrySet()) {
+            // 将grpc服务加入需要公开暴露列表，然后在runner阶段进行listen进行对外服务
             exportJsonGenericService(entry.getValue());
+            // 将服务注册信息发布出去，最后注册到网关控制台中
             handler(entry.getValue());
         }
     }
