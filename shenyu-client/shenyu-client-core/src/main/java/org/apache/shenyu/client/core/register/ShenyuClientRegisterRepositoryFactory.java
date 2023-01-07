@@ -40,6 +40,7 @@ public final class ShenyuClientRegisterRepositoryFactory {
      */
     public static ShenyuClientRegisterRepository newInstance(final ShenyuRegisterCenterConfig shenyuRegisterCenterConfig) {
         if (!REPOSITORY_MAP.containsKey(shenyuRegisterCenterConfig.getRegisterType())) {
+            // 通过spi加载对应的实现方式
             ShenyuClientRegisterRepository result = ExtensionLoader.getExtensionLoader(ShenyuClientRegisterRepository.class).getJoin(shenyuRegisterCenterConfig.getRegisterType());
             result.init(shenyuRegisterCenterConfig);
             ShenyuClientShutdownHook.set(result, shenyuRegisterCenterConfig.getProps());

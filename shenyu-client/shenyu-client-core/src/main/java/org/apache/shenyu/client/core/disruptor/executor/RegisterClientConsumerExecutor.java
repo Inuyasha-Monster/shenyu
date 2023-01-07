@@ -41,6 +41,7 @@ public final class RegisterClientConsumerExecutor<T extends DataTypeParent> exte
 
     @Override
     public void run() {
+        // 最终client的注册事件消费到这里来
         final T data = getData();
         subscribers.get(data.getType()).executor(Lists.newArrayList(data));
     }

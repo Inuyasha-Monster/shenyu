@@ -27,13 +27,14 @@ import org.apache.shenyu.register.common.type.DataTypeParent;
 
 /**
  * The type shenyu client register event publisher.
+ * 统一的客户端注册事件发布实现
  */
 public class ShenyuClientRegisterEventPublisher {
-    
+
     private static final ShenyuClientRegisterEventPublisher INSTANCE = new ShenyuClientRegisterEventPublisher();
-    
+
     private DisruptorProviderManage<DataTypeParent> providerManage;
-    
+
     /**
      * Get instance.
      *
@@ -42,7 +43,7 @@ public class ShenyuClientRegisterEventPublisher {
     public static ShenyuClientRegisterEventPublisher getInstance() {
         return INSTANCE;
     }
-    
+
     /**
      * Start.
      *
@@ -50,12 +51,14 @@ public class ShenyuClientRegisterEventPublisher {
      */
     public void start(final ShenyuClientRegisterRepository shenyuClientRegisterRepository) {
         RegisterClientExecutorFactory factory = new RegisterClientExecutorFactory();
+        // 添加元数据订阅者
         factory.addSubscribers(new ShenyuClientMetadataExecutorSubscriber(shenyuClientRegisterRepository));
+        // 添加url数据订阅者
         factory.addSubscribers(new ShenyuClientURIExecutorSubscriber(shenyuClientRegisterRepository));
         providerManage = new DisruptorProviderManage<>(factory);
         providerManage.startup();
     }
-    
+
     /**
      * Publish event.
      *

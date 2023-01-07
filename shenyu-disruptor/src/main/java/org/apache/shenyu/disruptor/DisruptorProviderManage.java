@@ -43,19 +43,19 @@ import java.util.concurrent.TimeUnit;
  * @param <T> the type parameter
  */
 public class DisruptorProviderManage<T> {
-    
+
     public static final Integer DEFAULT_SIZE = 4096 << 1 << 1;
-    
+
     private static final Integer DEFAULT_CONSUMER_SIZE = Runtime.getRuntime().availableProcessors() << 1;
-    
+
     private final Integer size;
-    
+
     private final Integer consumerSize;
-    
+
     private final QueueConsumerFactory<T> consumerFactory;
-    
+
     private DisruptorProvider<T> provider;
-    
+
     /**
      * Instantiates a new Disruptor provider manage.
      *
@@ -67,7 +67,7 @@ public class DisruptorProviderManage<T> {
                 DEFAULT_CONSUMER_SIZE,
                 ringBufferSize);
     }
-    
+
     /**
      * Instantiates a new Disruptor provider manage.
      *
@@ -76,7 +76,7 @@ public class DisruptorProviderManage<T> {
     public DisruptorProviderManage(final QueueConsumerFactory<T> consumerFactory) {
         this(consumerFactory, DEFAULT_CONSUMER_SIZE, DEFAULT_SIZE);
     }
-    
+
     /**
      * Instantiates a new Disruptor provider manage.
      *
@@ -91,16 +91,16 @@ public class DisruptorProviderManage<T> {
         this.size = ringBufferSize;
         this.consumerSize = consumerSize;
     }
-    
+
     /**
      * start disruptor.
      */
     public void startup() {
         this.startup(false);
     }
-    
+
     /**
-     * start disruptor..
+     * start disruptor
      *
      * @param isOrderly the orderly Whether to execute sequentially.
      */
@@ -132,7 +132,7 @@ public class DisruptorProviderManage<T> {
         RingBuffer<DataEvent<T>> ringBuffer = disruptor.getRingBuffer();
         provider = new DisruptorProvider<>(ringBuffer, disruptor, isOrderly);
     }
-    
+
     /**
      * Gets provider.
      *
