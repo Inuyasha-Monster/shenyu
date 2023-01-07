@@ -45,13 +45,8 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
+import java.lang.reflect.Modifier;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -76,7 +71,7 @@ public class GrpcClientEventListener implements ApplicationListener<ContextRefre
     /**
      * Instantiates a new Shenyu client bean post processor.
      *
-     * @param clientConfig the shenyu grpc client config
+     * @param clientConfig                   the shenyu grpc client config
      * @param shenyuClientRegisterRepository the shenyuClientRegisterRepository
      */
     public GrpcClientEventListener(final PropertiesConfig clientConfig, final ShenyuClientRegisterRepository shenyuClientRegisterRepository) {
@@ -138,6 +133,9 @@ public class GrpcClientEventListener implements ApplicationListener<ContextRefre
         if (basePath.contains("*")) {
             Method[] methods = ReflectionUtils.getDeclaredMethods(clazz);
             for (Method method : methods) {
+                if (Modifier.isStatic(method.getModifiers())) {
+                    continue;
+                }
                 publisher.publishEvent(buildMetaDataDTO(packageName, beanShenyuClient, method, basePath));
             }
             return;
@@ -151,8 +149,10 @@ public class GrpcClientEventListener implements ApplicationListener<ContextRefre
         }
     }
 
-    private MetaDataRegisterDTO buildMetaDataDTO(final String packageName, final ShenyuGrpcClient shenyuGrpcClient,
-                                                 final Method method, final String basePath) {
+    private MetaDataRegisterDTO buildMetaDataDTO(final String packageName,
+                                                 final ShenyuGrpcClient shenyuGrpcClient,
+                                                 final Method method,
+                                                 final String basePath) {
         String path = basePath.contains("*")
                 ? buildAbsolutePath("/", contextPath, basePath.replace("*", ""), method.getName())
                 : buildAbsolutePath("/", contextPath, basePath, shenyuGrpcClient.path());
