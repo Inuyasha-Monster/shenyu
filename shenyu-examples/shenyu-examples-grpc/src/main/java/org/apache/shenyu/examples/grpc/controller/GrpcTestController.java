@@ -49,7 +49,7 @@ public class GrpcTestController {
     }
 
     private Channel channel() {
-        return ManagedChannelBuilder.forAddress("127.0.0.1", 8080)
+        return ManagedChannelBuilder.forAddress("127.0.0.1", 38080)
                 .usePlaintext().build();
     }
 
