@@ -208,6 +208,7 @@ public class GrpcClientEventListener implements ApplicationListener<ContextRefre
         ServerServiceDefinition serviceDefinition = bindableService.bindService();
 
         try {
+            // 将原本的serviceDefinition包装为一个json数据格式的serviceDefinition
             ServerServiceDefinition jsonDefinition = JsonServerServiceInterceptor.useJsonMessages(serviceDefinition);
             serviceDefinitions.add(serviceDefinition);
             serviceDefinitions.add(jsonDefinition);

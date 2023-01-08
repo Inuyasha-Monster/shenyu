@@ -50,25 +50,26 @@ public class JsonServerServiceInterceptor {
 
     /**
      * wrap ServerServiceDefinition to get json ServerServiceDefinition.
+     *
      * @param serviceDef ServerServiceDefinition
      * @return json ServerServiceDefinition
      * @throws IllegalArgumentException IllegalArgumentException
-     * @throws IllegalAccessException IllegalAccessException
+     * @throws IllegalAccessException   IllegalAccessException
      */
     public static ServerServiceDefinition useJsonMessages(final ServerServiceDefinition serviceDef)
             throws IllegalArgumentException, IllegalAccessException {
-        return useMarshalledMessages(serviceDef,
-                io.grpc.protobuf.ProtoUtils.marshaller(JsonMessage.buildJsonMessage()));
+        return useMarshalledMessages(serviceDef, io.grpc.protobuf.ProtoUtils.marshaller(JsonMessage.buildJsonMessage()));
     }
 
     /**
      * wrap method.
+     *
      * @param serviceDef ServerServiceDefinition
      * @param marshaller message
-     * @param <T> message type
+     * @param <T>        message type
      * @return wrap ServerServiceDefinition
      * @throws IllegalArgumentException IllegalArgumentException
-     * @throws IllegalAccessException IllegalAccessException
+     * @throws IllegalAccessException   IllegalAccessException
      */
     public static <T> ServerServiceDefinition useMarshalledMessages(final ServerServiceDefinition serviceDef,
                                                                     final MethodDescriptor.Marshaller<T> marshaller)
@@ -145,12 +146,13 @@ public class JsonServerServiceInterceptor {
 
     /**
      * wrap Method.
-     * @param definition ServerMethodDefinition
+     *
+     * @param definition    ServerMethodDefinition
      * @param wrappedMethod MethodDescriptor
-     * @param <R> origin request message
-     * @param <P> origin response message
-     * @param <W> wrap request message
-     * @param <M> wrap response message
+     * @param <R>           origin request message
+     * @param <P>           origin response message
+     * @param <W>           wrap request message
+     * @param <M>           wrap response message
      * @return wrap method
      */
     private static <R, P, W, M> ServerMethodDefinition<W, M> wrapMethod(
@@ -162,11 +164,12 @@ public class JsonServerServiceInterceptor {
 
     /**
      * wrap handler.
+     *
      * @param originalHandler original handler
-     * @param <R> origin request message
-     * @param <P> origin response message
-     * @param <W> wrap request message
-     * @param <M> wrap response message
+     * @param <R>             origin request message
+     * @param <P>             origin response message
+     * @param <W>             wrap request message
+     * @param <M>             wrap response message
      * @return wrap handler
      */
     @SuppressWarnings("unchecked")
@@ -185,6 +188,7 @@ public class JsonServerServiceInterceptor {
 
     /**
      * get RequestClazzMap.
+     *
      * @return requestClazzMap
      */
     public static Map<String, Class<?>> getRequestClazzMap() {
@@ -193,6 +197,7 @@ public class JsonServerServiceInterceptor {
 
     /**
      * get MethodTypeMap.
+     *
      * @return methodTypeMap
      */
     public static Map<String, MethodDescriptor.MethodType> getMethodTypeMap() {

@@ -59,6 +59,12 @@ public class GrpcServerRunner implements ApplicationRunner {
             // 将暴露的服务加入grpcServer中
             serverBuilder.addService(serviceDefinition);
             LOG.info("{} has been add to grpc server", serviceDefinition.getServiceDescriptor().getName());
+
+            /**
+             * 备注每个原始的 grpc method 都会被包装为一个输入输出都是json数据格式的包装服务
+             * event.EventService has been add to grpc server
+             * event.EventServiceJSON has been add to grpc server
+             */
         }
 
         try {
