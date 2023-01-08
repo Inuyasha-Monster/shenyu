@@ -133,7 +133,7 @@ public class GrpcClientEventListener implements ApplicationListener<ContextRefre
         if (basePath.contains("*")) {
             Method[] methods = ReflectionUtils.getDeclaredMethods(clazz);
             for (Method method : methods) {
-                if (Modifier.isStatic(method.getModifiers())) {
+                if (!Modifier.isPublic(method.getModifiers())) {
                     continue;
                 }
                 publisher.publishEvent(buildMetaDataDTO(packageName, beanShenyuClient, method, basePath));
