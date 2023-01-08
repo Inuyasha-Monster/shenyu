@@ -45,6 +45,7 @@ public final class GrpcClientBuilder {
     static {
         LoadBalancerRegistry.getDefaultRegistry().register(new RandomLoadBalancerProvider());
         LoadBalancerRegistry.getDefaultRegistry().register(new RoundRobinLoadBalancerProvider());
+        // 注册grpc服务域名解析器，实际上通过 selectorData's contextPath 找到对应的后端服务地址
         NameResolverRegistry.getDefaultRegistry().register(new ShenyuNameResolverProvider());
     }
 
@@ -64,6 +65,7 @@ public final class GrpcClientBuilder {
                 .defaultLoadBalancingPolicy(LoadBalancerStrategy.RANDOM.getStrategy())
                 .usePlaintext()
                 .maxInboundMessageSize(100 * 1024 * 1024)
+                // 指定grpc请求处理的线程池，防止影响webflux网关IO线程资源
                 .executor(buildExecutor())
                 .disableRetry();
         ManagedChannel channel = builder.build();

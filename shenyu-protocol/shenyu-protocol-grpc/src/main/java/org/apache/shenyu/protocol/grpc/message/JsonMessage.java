@@ -144,7 +144,7 @@ public class JsonMessage {
      *
      * @param serviceName service name
      * @param methodName  method name
-     * @param methodType methodType
+     * @param methodType  methodType
      * @param request     request marshaller
      * @param response    response marshaller
      * @return MethodDescriptor
@@ -154,6 +154,7 @@ public class JsonMessage {
                                                                                                         final MethodDescriptor.MethodType methodType,
                                                                                                         final DynamicMessage request,
                                                                                                         final DynamicMessage response) {
+        // 原始 serviceName+"JSON" 去调用底层后端服务的grpcJSON端点服务
         MethodDescriptor<DynamicMessage, DynamicMessage> methodDescriptor = METHOD_DESCRIPTOR_CACHE.get(serviceName + GrpcConstants.GRPC_JSON_SERVICE + methodName);
         if (methodDescriptor == null) {
             methodDescriptor = MethodDescriptor.<DynamicMessage, DynamicMessage>newBuilder()

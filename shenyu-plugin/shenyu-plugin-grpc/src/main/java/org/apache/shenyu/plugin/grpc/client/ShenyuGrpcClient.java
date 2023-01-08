@@ -75,7 +75,8 @@ public class ShenyuGrpcClient implements Closeable {
         List<DynamicMessage> jsonRequestList = JsonMessage.buildJsonMessageList(GsonUtils.getInstance().toObjectMap(requestJsons));
         DynamicMessage jsonResponse = JsonMessage.buildJsonMessage();
 
-        MethodDescriptor<DynamicMessage, DynamicMessage> jsonMarshallerMethodDescriptor = JsonMessage.createJsonMarshallerMethodDescriptor(metaData.getServiceName(),
+        MethodDescriptor<DynamicMessage, DynamicMessage> jsonMarshallerMethodDescriptor = JsonMessage.createJsonMarshallerMethodDescriptor(
+                metaData.getServiceName(),
                 metaData.getMethodName(),
                 methodType,
                 jsonRequestList.get(0),

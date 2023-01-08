@@ -46,7 +46,6 @@ public class JsonMessageTest {
     @Test
     public void testBuildJsonMessage() {
         DynamicMessage jsonMessage = JsonMessage.buildJsonMessage();
-
         assertEquals(GrpcConstants.JSON_DESCRIPTOR_PROTO_NAME, jsonMessage.getDescriptorForType().getFullName());
     }
 

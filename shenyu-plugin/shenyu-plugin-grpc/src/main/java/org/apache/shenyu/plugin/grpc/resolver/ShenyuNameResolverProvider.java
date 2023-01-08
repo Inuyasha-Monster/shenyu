@@ -29,6 +29,12 @@ import java.net.URI;
  */
 public class ShenyuNameResolverProvider extends NameResolverProvider {
 
+    /**
+     * 域名解析
+     * @param targetUri 这个地址就是 build channel 传递的 target 地址，详情：ManagedChannelBuilder.forTarget(contextPath)
+     * @param args
+     * @return
+     */
     @Override
     public NameResolver newNameResolver(final URI targetUri, final NameResolver.Args args) {
         return new ShenyuNameResolver(targetUri.getPath(), args, GrpcUtil.SHARED_CHANNEL_EXECUTOR);

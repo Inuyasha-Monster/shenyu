@@ -56,6 +56,7 @@ public class GrpcPluginDataHandler implements PluginDataHandler {
         }
         // 监听选择器数据变化构建client
         GrpcClientCache.initGrpcClient(selectorData.getName());
+        // 构建grpc域名解析所需的后端服务地址
         ApplicationConfigCache.getInstance().initPrx(selectorData);
     }
 

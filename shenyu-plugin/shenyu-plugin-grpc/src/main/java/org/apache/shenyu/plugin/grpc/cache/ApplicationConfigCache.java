@@ -87,6 +87,7 @@ public final class ApplicationConfigCache {
             ShenyuServiceInstanceLists shenyuServiceInstances = cache.get(selectorData.getName());
             List<ShenyuServiceInstance> instances = shenyuServiceInstances.getShenyuServiceInstances();
             instances.clear();
+            // 将选择器中的后端服务地址列表加入缓存中
             instances.addAll(upstreamList.stream().map(this::build).collect(Collectors.toList()));
             Consumer<Object> consumer = listener.get(selectorData.getName());
             if (Objects.nonNull(consumer)) {
