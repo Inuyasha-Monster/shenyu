@@ -72,9 +72,11 @@ public class JsonServerServiceInterceptor {
      * @throws IllegalAccessException   IllegalAccessException
      */
     public static <T> ServerServiceDefinition useMarshalledMessages(final ServerServiceDefinition serviceDef,
-                                                                    final MethodDescriptor.Marshaller<T> marshaller)
-            throws IllegalArgumentException, IllegalAccessException {
+                                                                    final MethodDescriptor.Marshaller<T> marshaller) throws IllegalArgumentException, IllegalAccessException {
+
+        // 包装的方法定义
         List<ServerMethodDefinition<?, ?>> wrappedMethods = new ArrayList<>();
+        // 包装的方法描述
         List<MethodDescriptor<?, ?>> wrappedDescriptors = new ArrayList<>();
 
         // Wrap the descriptors
@@ -107,8 +109,12 @@ public class JsonServerServiceInterceptor {
             final MethodDescriptor<?, ?> originalMethodDescriptor = definition.getMethodDescriptor();
             final MethodDescriptor<T, T> wrappedMethodDescriptor = originalMethodDescriptor
                     .toBuilder(marshaller, marshaller).build();
+
+            // 加入包装的集合
             wrappedDescriptors.add(wrappedMethodDescriptor);
-            wrappedMethods.add(wrapMethod(definition, wrappedMethodDescriptor));
+            // 通过 wrappedMethodDescriptor 构建包装的服务端方法描述
+            final ServerMethodDefinition<T, T> wrapMethod = wrapMethod(definition, wrappedMethodDescriptor);
+            wrappedMethods.add(wrapMethod);
         }
 
         // Build the new service descriptor
@@ -122,6 +128,7 @@ public class JsonServerServiceInterceptor {
             String fullMethodName = (String) fullMethodNameField.get(md);
             String[] splitMethodName = fullMethodName.split("/");
             fullMethodName = splitMethodName[0] + GrpcConstants.GRPC_JSON_SERVICE + "/" + splitMethodName[1];
+            // 重制方法名词，添加Json标记
             fullMethodNameField.set(md, fullMethodName);
 
             // Compatible with lower versions. Lower versions do not have this field. eg: grpc 1.6.0
@@ -130,12 +137,18 @@ public class JsonServerServiceInterceptor {
                 serviceNameField.setAccessible(true);
                 String serviceName = (String) serviceNameField.get(md);
                 serviceName = serviceName + GrpcConstants.GRPC_JSON_SERVICE;
+                // 重设服务名称，添加Json标记
                 serviceNameField.set(md, serviceName);
             }
+
+            // 将改造的方法定义加入新的服务
             build.addMethod(md);
         }
+
+        // 通过 ServiceDescriptor.Builder.build() 产物作为服务端服务定义的元数据
+        final ServiceDescriptor serviceDescriptor = build.build();
         final ServerServiceDefinition.Builder serviceBuilder = ServerServiceDefinition
-                .builder(build.build());
+                .builder(serviceDescriptor);
 
         // Create the new service definition
         for (ServerMethodDefinition<?, ?> definition : wrappedMethods) {

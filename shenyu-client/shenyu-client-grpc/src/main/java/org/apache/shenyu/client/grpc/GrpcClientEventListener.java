@@ -95,7 +95,7 @@ public class GrpcClientEventListener implements ApplicationListener<ContextRefre
         for (Map.Entry<String, BindableService> entry : beans.entrySet()) {
             // 将grpc服务加入需要公开暴露列表，然后在runner阶段进行listen进行对外服务
             exportJsonGenericService(entry.getValue());
-            // 将服务注册信息发布出去，最后注册到网关控制台中
+            // 将原始grpc服务注册信息发布出去，最后注册到网关控制台中
             handler(entry.getValue());
         }
     }
@@ -211,6 +211,7 @@ public class GrpcClientEventListener implements ApplicationListener<ContextRefre
             // 将原本的serviceDefinition包装为一个json数据格式的serviceDefinition
             ServerServiceDefinition jsonDefinition = JsonServerServiceInterceptor.useJsonMessages(serviceDefinition);
             serviceDefinitions.add(serviceDefinition);
+            // 这里额外暴露Json数据格式的服务给网关调用
             serviceDefinitions.add(jsonDefinition);
         } catch (Exception e) {
             LOG.error("export json generic service is fail", e);
