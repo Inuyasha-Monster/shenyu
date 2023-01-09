@@ -48,10 +48,11 @@ public class JsonServerServiceInterceptor {
 
     /**
      * wrap ServerServiceDefinition to get json ServerServiceDefinition.
+     *
      * @param serviceDef ServerServiceDefinition
      * @return json ServerServiceDefinition
      * @throws IllegalArgumentException IllegalArgumentException
-     * @throws IllegalAccessException IllegalAccessException
+     * @throws IllegalAccessException   IllegalAccessException
      */
     public static ServerServiceDefinition useJsonMessages(final ServerServiceDefinition serviceDef)
             throws IllegalArgumentException, IllegalAccessException {
@@ -61,12 +62,13 @@ public class JsonServerServiceInterceptor {
 
     /**
      * wrap method.
+     *
      * @param serviceDef ServerServiceDefinition
      * @param marshaller message
-     * @param <T> message type
+     * @param <T>        message type
      * @return wrap ServerServiceDefinition
      * @throws IllegalArgumentException IllegalArgumentException
-     * @throws IllegalAccessException IllegalAccessException
+     * @throws IllegalAccessException   IllegalAccessException
      */
     public static <T> ServerServiceDefinition useMarshalledMessages(final ServerServiceDefinition serviceDef,
                                                                     final MethodDescriptor.Marshaller<T> marshaller)
@@ -75,8 +77,9 @@ public class JsonServerServiceInterceptor {
         List<MethodDescriptor<?, ?>> wrappedDescriptors = new ArrayList<>();
 
         // Wrap the descriptors
-        for (final ServerMethodDefinition<?, ?> definition : serviceDef.getMethods()) {
-            MethodDescriptor.Marshaller<?> requestMarshaller = definition.getMethodDescriptor().getRequestMarshaller();
+        for (final ServerMethodDefinition<?, ?> methodDefinition : serviceDef.getMethods()) {
+            // 获取方法请求参数信息
+            MethodDescriptor.Marshaller<?> requestMarshaller = methodDefinition.getMethodDescriptor().getRequestMarshaller();
             Field defaultInstanceField = ReflectUtils.getField(requestMarshaller.getClass(), "defaultInstance");
             Class<?> grpcRequestParamClass = null;
             if (Objects.isNull(defaultInstanceField)) {
@@ -90,22 +93,24 @@ public class JsonServerServiceInterceptor {
                 }
             } else {
                 defaultInstanceField.setAccessible(true);
+                // 获取请求参数类型
                 grpcRequestParamClass = defaultInstanceField.get(requestMarshaller).getClass();
             }
 
-            String fullMethodName = definition.getMethodDescriptor().getFullMethodName();
-            MethodDescriptor.MethodType methodType = definition.getMethodDescriptor().getType();
+            String fullMethodName = methodDefinition.getMethodDescriptor().getFullMethodName();
+            MethodDescriptor.MethodType methodType = methodDefinition.getMethodDescriptor().getType();
             METHOD_TYPE_MAP.put(fullMethodName, methodType);
 
             String[] splitMethodName = fullMethodName.split("/");
             fullMethodName = splitMethodName[0] + GrpcConstants.GRPC_JSON_SERVICE + "/" + splitMethodName[1];
             REQUEST_CLAZZ_MAP.put(fullMethodName, grpcRequestParamClass);
 
-            final MethodDescriptor<?, ?> originalMethodDescriptor = definition.getMethodDescriptor();
+            final MethodDescriptor<?, ?> originalMethodDescriptor = methodDefinition.getMethodDescriptor();
             final MethodDescriptor<T, T> wrappedMethodDescriptor = originalMethodDescriptor
+                    // 设置请求和响应数据格式信息
                     .toBuilder(marshaller, marshaller).build();
             wrappedDescriptors.add(wrappedMethodDescriptor);
-            wrappedMethods.add(wrapMethod(definition, wrappedMethodDescriptor));
+            wrappedMethods.add(wrapMethod(methodDefinition, wrappedMethodDescriptor));
         }
 
         // Build the new service descriptor
@@ -143,37 +148,40 @@ public class JsonServerServiceInterceptor {
 
     /**
      * wrap Method.
-     * @param definition ServerMethodDefinition
-     * @param wrappedMethod MethodDescriptor
-     * @param <R> origin request message
-     * @param <P> origin response message
-     * @param <W> wrap request message
-     * @param <M> wrap response message
+     *
+     * @param definition              ServerMethodDefinition
+     * @param wrappedMethodDescriptor MethodDescriptor
+     * @param <R>                     origin request message
+     * @param <P>                     origin response message
+     * @param <W>                     wrap request message
+     * @param <M>                     wrap response message
      * @return wrap method
      */
     private static <R, P, W, M> ServerMethodDefinition<W, M> wrapMethod(
             final ServerMethodDefinition<R, P> definition,
-            final MethodDescriptor<W, M> wrappedMethod) {
+            final MethodDescriptor<W, M> wrappedMethodDescriptor) {
+        // 将原始调用处理器包装为能够处理Json的处理器
         final ServerCallHandler<W, M> wrappedHandler = wrapHandler(definition.getServerCallHandler());
-        return ServerMethodDefinition.create(wrappedMethod, wrappedHandler);
+        return ServerMethodDefinition.create(wrappedMethodDescriptor, wrappedHandler);
     }
 
     /**
      * wrap handler.
+     *
      * @param originalHandler original handler
-     * @param <R> origin request message
-     * @param <P> origin response message
-     * @param <W> wrap request message
-     * @param <M> wrap response message
+     * @param <R>             origin request message
+     * @param <P>             origin response message
+     * @param <W>             wrap request message
+     * @param <M>             wrap response message
      * @return wrap handler
      */
     @SuppressWarnings("unchecked")
-    private static <R, P, W, M> ServerCallHandler<W, M> wrapHandler(
-            final ServerCallHandler<R, P> originalHandler) {
+    private static <R, P, W, M> ServerCallHandler<W, M> wrapHandler(final ServerCallHandler<R, P> originalHandler) {
         return new ServerCallHandler<W, M>() {
             @SuppressWarnings("rawtypes")
             @Override
             public ServerCall.Listener<W> startCall(final ServerCall<W, M> call, final Metadata headers) {
+                // 构建以Json格式数据返回的 ServerCall
                 final ServerCall<R, P> unwrappedCall = new JsonForwardingServerCall<>((ServerCall<P, P>) call);
                 final ServerCall.Listener<R> originalListener = originalHandler.startCall(unwrappedCall, headers);
                 return new JsonServerCallListener(originalListener, unwrappedCall);
@@ -183,6 +191,7 @@ public class JsonServerServiceInterceptor {
 
     /**
      * get RequestClazzMap.
+     *
      * @return requestClazzMap
      */
     public static Map<String, Class<?>> getRequestClazzMap() {
@@ -191,6 +200,7 @@ public class JsonServerServiceInterceptor {
 
     /**
      * get MethodTypeMap.
+     *
      * @return methodTypeMap
      */
     public static Map<String, MethodDescriptor.MethodType> getMethodTypeMap() {
