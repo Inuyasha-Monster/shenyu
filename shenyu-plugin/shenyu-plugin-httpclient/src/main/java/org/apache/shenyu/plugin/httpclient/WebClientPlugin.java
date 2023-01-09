@@ -56,11 +56,13 @@ public class WebClientPlugin extends AbstractHttpClientPlugin<ClientResponse> {
         // springWebflux5.3 mark #exchange() deprecated. because #echange maybe make memory leak.
         // https://github.com/spring-projects/spring-framework/issues/25751
         // exchange is deprecated, so change to {@link WebClient.RequestHeadersSpec#exchangeToMono(Function)}
-        return webClient.method(HttpMethod.valueOf(httpMethod)).uri(uri)
+        return webClient.method(HttpMethod.valueOf(httpMethod))
+                .uri(uri)
                 .headers(headers -> headers.addAll(httpHeaders))
                 .body(BodyInserters.fromDataBuffers(body))
                 .exchangeToMono(response -> response.bodyToMono(byte[].class)
-                        .flatMap(bytes -> Mono.fromCallable(() -> Optional.ofNullable(bytes))).defaultIfEmpty(Optional.empty())
+                        .flatMap(bytes -> Mono.fromCallable(() -> Optional.ofNullable(bytes)))
+                        .defaultIfEmpty(Optional.empty())
                         .flatMap(option -> {
                             final ClientResponse.Builder builder = ClientResponse.create(response.statusCode())
                                     .headers(headers -> headers.addAll(response.headers().asHttpHeaders()))

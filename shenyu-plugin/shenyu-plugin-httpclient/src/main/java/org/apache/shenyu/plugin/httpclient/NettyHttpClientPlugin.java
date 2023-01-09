@@ -54,10 +54,14 @@ public class NettyHttpClientPlugin extends AbstractHttpClientPlugin<HttpClientRe
     }
 
     @Override
-    protected Mono<HttpClientResponse> doRequest(final ServerWebExchange exchange, final String httpMethod, final URI uri,
-                                final HttpHeaders httpHeaders, final Flux<DataBuffer> body) {
+    protected Mono<HttpClientResponse> doRequest(final ServerWebExchange exchange,
+                                                 final String httpMethod,
+                                                 final URI uri,
+                                                 final HttpHeaders httpHeaders,
+                                                 final Flux<DataBuffer> body) {
         return Mono.from(httpClient.headers(headers -> httpHeaders.forEach(headers::add))
-                .request(HttpMethod.valueOf(httpMethod)).uri(uri.toASCIIString())
+                .request(HttpMethod.valueOf(httpMethod))
+                .uri(uri.toASCIIString())
                 .send((req, nettyOutbound) -> nettyOutbound.send(body.map(dataBuffer -> ((NettyDataBuffer) dataBuffer).getNativeBuffer())))
                 .responseConnection((res, connection) -> {
                     exchange.getAttributes().put(Constants.CLIENT_RESPONSE_ATTR, res);
