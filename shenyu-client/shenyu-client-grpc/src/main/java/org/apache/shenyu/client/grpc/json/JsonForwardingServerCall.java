@@ -61,7 +61,7 @@ public class JsonForwardingServerCall<R, P> extends ServerCall<R, P> {
 
             String jsonFormat = JsonFormat.printer().includingDefaultValueFields().preservingProtoFieldNames()
                     .print((MessageOrBuilder) message);
-
+            // 后端grpc包装为Json数据格式响应给到网关
             DynamicMessage respMessage = JsonMessage.buildJsonMessage(jsonFormat);
             LOG.debug("begin send json response");
             delegate().sendMessage((P) respMessage);

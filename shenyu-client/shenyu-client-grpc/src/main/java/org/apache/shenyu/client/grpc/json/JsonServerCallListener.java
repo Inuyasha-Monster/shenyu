@@ -60,16 +60,20 @@ public class JsonServerCallListener<R, P> extends ForwardingServerCallListener<R
     @Override
     public void onMessage(final R message) {
         Message.Builder builder;
+        // 获取对应请求方法的参数类型
         Class<?> t = JsonServerServiceInterceptor.getRequestClazzMap().get(call.getMethodDescriptor().getFullMethodName());
         try {
+            // 反射获取builder对象
             builder = (Message.Builder) ReflectUtils.invokeStaticMethod(t, "newBuilder");
 
+            // 提取网关传递的约定Json数据
             String reqData = JsonMessage.getDataFromDynamicMessage((DynamicMessage) message);
+            // 将数据合并到builder中
             JsonFormat.parser().ignoringUnknownFields().merge(reqData, builder);
             if (Objects.isNull(builder)) {
                 throw new ShenyuException("build json response message is error, newBuilder method is null");
             }
-
+            // 将最终数据转发委托
             delegate.onMessage((R) builder.build());
         } catch (Exception e) {
             LOG.error("handle json generic request is error", e);

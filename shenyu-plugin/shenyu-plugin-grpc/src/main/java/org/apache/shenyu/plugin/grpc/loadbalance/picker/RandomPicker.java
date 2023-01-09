@@ -45,6 +45,12 @@ public class RandomPicker extends AbstractReadyPicker {
         return list.get(index);
     }
 
+    /**
+     * 按照权重进行随机选取一个
+     *
+     * @param list
+     * @return
+     */
     private int getRandomIndexByWeight(final List<SubChannelCopy> list) {
         final int sumWeight = list.stream().mapToInt(SubChannelCopy::getWeight).sum();
         if (sumWeight <= 0) {
