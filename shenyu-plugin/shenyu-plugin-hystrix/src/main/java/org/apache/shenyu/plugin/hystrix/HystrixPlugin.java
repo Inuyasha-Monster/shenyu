@@ -80,10 +80,15 @@ public class HystrixPlugin extends AbstractShenyuPlugin {
     private Command fetchCommand(final HystrixHandle hystrixHandle, final ServerWebExchange exchange, final ShenyuPluginChain chain, final String commandKey, final String groupKey) {
         if (hystrixHandle.getExecutionIsolationStrategy() == HystrixIsolationModeEnum.SEMAPHORE.getCode()) {
             return new HystrixCommand(HystrixBuilder.build(hystrixHandle, commandKey, groupKey),
-                    exchange, chain, hystrixHandle.getCallBackUri());
+                    exchange,
+                    chain,
+                    hystrixHandle.getCallBackUri());
         }
-        return new HystrixCommandOnThread(HystrixBuilder.buildForHystrixCommand(hystrixHandle, commandKey, groupKey),
-                exchange, chain, hystrixHandle.getCallBackUri());
+        return new HystrixCommandOnThread(
+                HystrixBuilder.buildForHystrixCommand(hystrixHandle, commandKey, groupKey),
+                exchange,
+                chain,
+                hystrixHandle.getCallBackUri());
     }
 
     @Override
