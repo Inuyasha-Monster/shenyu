@@ -73,7 +73,7 @@ public class JsonServerCallListener<R, P> extends ForwardingServerCallListener<R
             if (Objects.isNull(builder)) {
                 throw new ShenyuException("build json response message is error, newBuilder method is null");
             }
-            // 将最终数据转发委托
+            // 将最终数据转发委托，这个时候该数据也是原始方法的参数数据了
             delegate.onMessage((R) builder.build());
         } catch (Exception e) {
             LOG.error("handle json generic request is error", e);
