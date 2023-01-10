@@ -38,9 +38,9 @@ import java.util.Optional;
  * The type Web client plugin.
  */
 public class WebClientPlugin extends AbstractHttpClientPlugin<ClientResponse> {
-    
+
     private final WebClient webClient;
-    
+
     /**
      * Instantiates a new Web client plugin.
      *
@@ -49,10 +49,13 @@ public class WebClientPlugin extends AbstractHttpClientPlugin<ClientResponse> {
     public WebClientPlugin(final WebClient webClient) {
         this.webClient = webClient;
     }
-    
+
     @Override
-    protected Mono<ClientResponse> doRequest(final ServerWebExchange exchange, final String httpMethod, final URI uri,
-                                             final HttpHeaders httpHeaders, final Flux<DataBuffer> body) {
+    protected Mono<ClientResponse> doRequest(final ServerWebExchange exchange,
+                                             final String httpMethod,
+                                             final URI uri,
+                                             final HttpHeaders httpHeaders,
+                                             final Flux<DataBuffer> body) {
         // springWebflux5.3 mark #exchange() deprecated. because #echange maybe make memory leak.
         // https://github.com/spring-projects/spring-framework/issues/25751
         // exchange is deprecated, so change to {@link WebClient.RequestHeadersSpec#exchangeToMono(Function)}
@@ -64,7 +67,8 @@ public class WebClientPlugin extends AbstractHttpClientPlugin<ClientResponse> {
                         .flatMap(bytes -> Mono.fromCallable(() -> Optional.ofNullable(bytes)))
                         .defaultIfEmpty(Optional.empty())
                         .flatMap(option -> {
-                            final ClientResponse.Builder builder = ClientResponse.create(response.statusCode())
+                            final ClientResponse.Builder builder = ClientResponse
+                                    .create(response.statusCode())
                                     .headers(headers -> headers.addAll(response.headers().asHttpHeaders()))
                                     .cookies(cookies -> cookies.addAll(response.cookies()));
                             if (option.isPresent()) {
@@ -83,17 +87,17 @@ public class WebClientPlugin extends AbstractHttpClientPlugin<ClientResponse> {
                     exchange.getAttributes().put(Constants.CLIENT_RESPONSE_ATTR, res);
                 });
     }
-    
+
     @Override
     public int getOrder() {
         return PluginEnum.WEB_CLIENT.getCode();
     }
-    
+
     @Override
     public String named() {
         return PluginEnum.WEB_CLIENT.getName();
     }
-    
+
     @Override
     public boolean skip(final ServerWebExchange exchange) {
         return skipExceptHttpLike(exchange);

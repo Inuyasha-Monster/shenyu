@@ -34,7 +34,7 @@ public interface ShenyuResult<T> {
     /**
      * The response result.
      *
-     * @param exchange the exchange
+     * @param exchange  the exchange
      * @param formatted the formatted data that is origin data(basic、byte[]) or json string
      * @return the result object
      */
@@ -46,7 +46,7 @@ public interface ShenyuResult<T> {
      * format the origin, default is json format except the basic and bytes.
      *
      * @param exchange the exchange
-     * @param origin the origin
+     * @param origin   the origin
      * @return format origin
      */
     default Object format(ServerWebExchange exchange, Object origin) {
@@ -61,7 +61,7 @@ public interface ShenyuResult<T> {
     /**
      * the response context type, default is application/json.
      *
-     * @param exchange the exchange
+     * @param exchange  the exchange
      * @param formatted the formatted data that is origin data(basic、byte[]) or json string
      * @return the context type
      */
@@ -77,9 +77,9 @@ public interface ShenyuResult<T> {
      * Error t.
      *
      * @param exchange the exchange
-     * @param code    the code
-     * @param message the message
-     * @param object  the object
+     * @param code     the code
+     * @param message  the message
+     * @param object   the object
      * @return the t
      */
     default T error(ServerWebExchange exchange, int code, String message, Object object) {
