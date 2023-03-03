@@ -24,7 +24,7 @@ spring:
   application:
     name: shenyu-bootstrap
   codec:
-    max-in-memory-size: 2MB
+    max-in-memory-size: 20MB
   cloud:
     discovery:
       enabled: false
